@@ -7,24 +7,17 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-// shift register
-int latchPin = 12;
-int clockPin = 2;
-int dataPin = 14;
-
-byte leds = 0;
-int currentLED = 0;
-
-// records unique id
-const char* recordOneId = "59546f948a99e30e6ff54be2";
-const char* recordTwoId = "59546fec8a99e30e6ff54be3";
+// records and leds ids
+byte ledsPins[]={2,4,5,12,13,14,15,16};
+char* recordsIds[]={"59546f948a99e30e6ff54be2","59546fec8a99e30e6ff54be3",
+                    "595470348a99e30e6ff54be4","5954706b8a99e30e6ff54be5"};
 
 // router ssid & pass
 const char* ssid = "";
 const char* password = "";
 
 // node.js server info
-const char* host = "";
+const char* host = "192.168.11.2";
 const int port = 3000;
 
 // clinet
@@ -39,15 +32,12 @@ extern "C" {
 }
 
 void setup() {
-  Serial.begin(9600);
+	Serial.begin(9600);
 
-  //set pins to output to control the shift register
-	pinMode(latchPin, OUTPUT);
-	pinMode(clockPin, OUTPUT);
-	pinMode(dataPin, OUTPUT);
-
-  // initialize the leds
-	leds = 0;
+  // initializing leds
+	for (int i=0; i<8; i++) {
+		pinMode(ledsPins[i],OUTPUT);
+	}
 
   // method to connect to wifi
 	connectingToWiFi();
@@ -95,34 +85,17 @@ void connectingToServer() {
  * Logic to light up the leds
  */
 void enableLEDs() {
-  leds = 0;
 
-  // the first record
-	if(record == recordOneId) {
-		for (int i=4; i<8; i++) {
-			bitSet(leds, i);
-		}
-		digitalWrite(latchPin, LOW);
-		shiftOut(dataPin, clockPin, LSBFIRST, leds);
-		digitalWrite(latchPin, HIGH);
+  // turn off all the leds
+	for (int led=0; led<8; led++) {
+		digitalWrite(ledsPins[led], LOW);
+	}
 
-  // the second record
-	} else if(record == recordTwoId) {
-		for (int i=0; i<4; i++) {
-			bitSet(leds, i);
+  // verify which one to light up
+	for (int i=0; i<4; i++) {
+		if (record == recordsIds[i]) {
+			digitalWrite(ledsPins[i], HIGH);
 		}
-		digitalWrite(latchPin, LOW);
-		shiftOut(dataPin, clockPin, LSBFIRST, leds);
-		digitalWrite(latchPin, HIGH);
-
-  // when the record does not exist
-	} else {
-    for (int i=0; i<8; i++) {
-			bitClear(leds, i);
-		}
-		digitalWrite(latchPin, LOW);
-		shiftOut(dataPin, clockPin, LSBFIRST, leds);
-		digitalWrite(latchPin, HIGH);
 	}
 }
 
