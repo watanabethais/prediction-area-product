@@ -1,6 +1,6 @@
-/*
- * [kiwi] Indicated Area Prediction System for Shopping
- * - Record Board
+/* 1
+ * Indicated Area Prediction System for Shopping
+ * - Record Board [ESP ID 1]
  * @author Thais Watanabe
  */
 #include <Arduino.h>
@@ -8,16 +8,23 @@
 #include <ESP8266WebServer.h>
 
 // records and leds ids
-byte ledsPins[]={2,4,5,12,13,14,15,16};
-char* recordsIds[]={"59546f948a99e30e6ff54be2","59546fec8a99e30e6ff54be3",
-                    "595470348a99e30e6ff54be4","5954706b8a99e30e6ff54be5"};
+byte ledsPins[]={2,0,14,12,15,13,5,4};
+String recordsIds[]={
+  "596830d6cb19dc454ce89082",
+  "596830efcb19dc454ce89083",
+  "59683112cb19dc454ce89084",
+  "5968312bcb19dc454ce89085",
+  "5968315acb19dc454ce89087",
+  "59683177cb19dc454ce89088",
+  "59683193cb19dc454ce89089",
+  "596831aecb19dc454ce8908a"};
 
 // router ssid & pass
 const char* ssid = "";
 const char* password = "";
 
 // node.js server info
-const char* host = "192.168.11.2";
+const char* host = "192.168.11.7";
 const int port = 3000;
 
 // clinet
@@ -51,7 +58,7 @@ void loop() {
   // then light the right leds
 	enableLEDs();
 
-	delay(1000);
+	//delay(1);
 }
 
 /*
@@ -92,7 +99,7 @@ void enableLEDs() {
 	}
 
   // verify which one to light up
-	for (int i=0; i<4; i++) {
+	for (int i=0; i<8; i++) {
 		if (record == recordsIds[i]) {
 			digitalWrite(ledsPins[i], HIGH);
 		}
@@ -107,7 +114,6 @@ void whichRecord() {
 
   // getting the information
 	client.print(String("GET ") + url + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close\r\n\r\n");
-	delay(10);
 
 	while(client.available()) {
 		record = String(client.readStringUntil('\r'));
